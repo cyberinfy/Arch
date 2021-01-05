@@ -135,12 +135,12 @@
 #35 -> Install Display Server and it's applications
     pacman -S xorg
 
-#36 -> Install login manager
-    pacman -S lightdm lightdm-gtk-greeter
+#36 -> Install Gnome
+    pacman -S gnome
 
-#37 -> Install Plasma and KDE applications
-    pacman -S gnome gnome-extra
-
+#37 -> Install  gnome-extra
+    pacman -S gnome-extra
+    
 #38 -> User creation
     useradd -m -g wheel krishna
     passwd krishna
