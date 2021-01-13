@@ -1,3 +1,5 @@
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
 #0 -> Connect to Internet
     iwctl
     device list
@@ -29,22 +31,20 @@
     # t - set type
     # w - write all the changes
 
-#8 -> Disk Encryption
-    cryptsetup -y -v luksFormat /dev/nvme0n1p2
-
-#9 -> Open encrypted root partiton
-    cryptsetup open /dev/nvme0n1p2 cryptroot
-
-#10 -> Format partitions
+#8 -> Format Boot partition
     mkfs.fat -F 32 /dev/nvme0n1p1
-    mkfs.ext4 /dev/mapper/cryptroot
+
+#9 -> Format Root partition
+    mkfs.ext4 /dev/nvme0n1p2
+
+#10 -> Format swap partition
     mkswap /dev/nvme0n1p3
 
 #11 -> Activate swap
     swapon /dev/nvme0n1p3
 
 #12 -> Mount root partition
-    mount /dev/mapper/cryptroot /mnt
+    mount /dev/nvme0n1p2 /mnt
 
 #13 -> Make directory for boot partition
     mkdir /mnt/boot
@@ -113,7 +113,7 @@
     linux /vmlinuz-linux-lts
     initrd /intel-ucode.img
     initrd /initramfs-linux-lts.img
-    options rw cryptdevice=/dev/nvme0n1p2:cryptroot root=/dev/mapper/cryptroot resume=/dev/nvme0n1p3 pci=noaer
+    options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet loglevel=3 rd.udev.log-priority=3 splash
 
 #31 -> Configure bootloader
     vim /boot/loader/loader.conf
@@ -124,7 +124,7 @@
 #32 -> Configure mkinitcpio
     vim /etc/mkinitcpio.conf
     # Update "HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)" to
-    HOOKS=(base udev autodetect modconf block filesystems keyboard encrypt resume fsck)
+    HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)
 
 #33 -> generate initramfs  
     mkinitcpio -p linux-lts
@@ -138,7 +138,7 @@
 #36 -> Install Gnome
     pacman -S gnome
 
-#37 -> Install  gnome-extra
+#37 -> Install  gnome-extra (optional)
     pacman -S gnome-extra
     
 #38 -> User creation
@@ -154,10 +154,13 @@
     systemctl enable systemd-resolved
     systemctl enable systemd-timesyncd
     systemctl enable NetworkManager
+    systemctl enable bluetooth
     systemctl enable gdm
 
 #41 -> Final Steps
     exit
     umount -a
     reboot
-    login as krishna
+    login as krishna #user
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
