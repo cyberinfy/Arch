@@ -53,7 +53,7 @@
     mount /dev/nvme0n1p1 /mnt/boot
 
 #15 -> Pacstrap
-    pacstrap /mnt base linux-lts linux-firmware linux-lts-headers base-devel efibootmgr mtools dosfstools vim reflector dnsmasq
+    pacstrap /mnt base base-devel linux-lts linux-firmware linux-lts-headers efibootmgr mtools dosfstools vim
 
 #16 -> Copy systemd network configuration files
     cp /etc/systemd/network/* /mnt/etc/systemd/network
@@ -113,13 +113,13 @@
     linux /vmlinuz-linux-lts
     initrd /intel-ucode.img
     initrd /initramfs-linux-lts.img
-    options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet loglevel=3 rd.udev.log-priority=3 splash
+    options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet splash
 
 #31 -> Configure bootloader
     vim /boot/loader/loader.conf
     # Add the below lines by making required changes
     #timeout 3
-    default arch.conf
+    default arch
 
 #32 -> Configure mkinitcpio
     vim /etc/mkinitcpio.conf
