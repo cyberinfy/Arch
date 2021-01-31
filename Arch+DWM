@@ -193,11 +193,11 @@
     reboot
     login as krishna #user
     
-#42 -> Install yay
+#42 -> Install paru
     mkdir ~/src
     cd ~/src
-    git clonne https://aur.archlinux.org/yay
-    cd yay
+    git clonne https://aur.archlinux.org/paru
+    cd paru
     makepkg -si
     
 #43 -> Install audio requirements
