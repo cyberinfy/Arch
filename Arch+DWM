@@ -91,14 +91,14 @@
 #26 -> Set your hostname
     vim /etc/hostname
     # Add something like below line
-    cyberinfy
+    core
 
 #27 -> Set your hosts
     vim /etc/hosts
     # Add the below lines by making required changes
     127.0.0.1   localhost
     ::1         localhost
-    127.0.1.1   cyberinfy.localdomain   cyberinfy
+    127.0.1.1   core.localdomain   core
 
 #28 -> Set root password
     passwd
@@ -119,7 +119,7 @@
     vim /boot/loader/loader.conf
     # Add the below lines by making required changes
     #timeout 3
-    default arch.conf
+    default arch
 
 #32 -> Configure mkinitcpio
     vim /etc/mkinitcpio.conf
@@ -165,7 +165,7 @@
     dwm
     
 #39 -> User creation
-    useradd -m -g wheel krishna
+    useradd -m -G wheel krishna
     passwd krishna
 
     EDITOR=vim visudo
