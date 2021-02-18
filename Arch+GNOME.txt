@@ -130,7 +130,7 @@
     mkinitcpio -p linux-lts
 
 #34 -> Install Graphics
-    pacman -S xf86-video-intel nvidia-lts nvidia-utils
+    pacman -S xf86-video-intel nvidia-lts nvidia-utils nvidia-settings
 
 #35 -> Install Display Server and it's applications
     pacman -S xorg
