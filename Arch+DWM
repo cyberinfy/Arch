@@ -23,8 +23,8 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 3 partitions [nvme0n1p1 as boot(1) {1G} ,nvme0n1p2 as root(20) {900G},nvme0n1p3 as swap(19) {(rest)G}]
-    fdisk /dev/nvme0n1
+#7 -> Partition disk create 3 partitions [sda1 as boot(1) {1G} ,sda2 as root(20) {420G}, sda3 as swap(19) {(rest)G}]
+    fdisk /dev/sda1
     # g - create a new gpt id
     # n - new partition
     # +dGiB - d belongs to a positive number
@@ -32,25 +32,25 @@
     # w - write all the changes
 
 #8 -> Format Boot partition
-    mkfs.fat -F 32 /dev/nvme0n1p1
+    mkfs.fat -F 32 /dev/sda1
 
 #9 -> Format Root partition
-    mkfs.ext4 /dev/nvme0n1p2
+    mkfs.ext4 /dev/sda2
 
 #10 -> Format swap partition
-    mkswap /dev/nvme0n1p3
+    mkswap /dev/sda3
 
 #11 -> Activate swap
-    swapon /dev/nvme0n1p3
+    swapon /dev/sda3
 
 #12 -> Mount root partition
-    mount /dev/nvme0n1p2 /mnt
+    mount /dev/sda2 /mnt
 
 #13 -> Make directory for boot partition
     mkdir /mnt/boot
 
 #14 -> Mount boot partition
-    mount /dev/nvme0n1p1 /mnt/boot
+    mount /dev/sda1 /mnt/boot
 
 #15 -> Pacstrap
     pacstrap /mnt base linux-lts linux-firmware linux-lts-headers base-devel efibootmgr mtools dosfstools vim reflector dnsmasq iwd
@@ -113,7 +113,7 @@
     linux /vmlinuz-linux-lts
     initrd /intel-ucode.img
     initrd /initramfs-linux-lts.img
-    options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet loglevel=3 rd.udev.log-priority=3 splash
+    options rw root=/dev/sda2 resume=/dev/sda3 pci=noaer quiet splash
 
 #31 -> Configure bootloader
     vim /boot/loader/loader.conf
@@ -142,8 +142,8 @@
     # use below command to hibernate with screen lock
     slimlock & systemctl hibernate
 
-#37 -> Install terminal, fonts, git
-    pacman -S alacritty noto-fonts git
+#37 -> Install terminal, fonts, git, sound utils
+    pacman -S alacritty noto-fonts git pulseaudio pavucontrol bluez bluez-utils blueman
     
 #38 -> Install dwm & dmenu
     mkdir /usr/src/suckless
@@ -165,14 +165,14 @@
     dwm
     
 #39 -> User creation
-    useradd -m -G wheel krishna
-    passwd krishna
+    useradd -m -G wheel code
+    passwd code
 
     EDITOR=vim visudo
     # uncomment below line
     %wheel ALL=(ALL) ALL
     # Create xinitrc for user
-    su krishna
+    su code
     cd
     vim .xinitrc
     # add the below line
@@ -191,7 +191,7 @@
     exit
     umount -a
     reboot
-    login as krishna #user
+    login as code #user
     
 #42 -> Install paru
     mkdir ~/src
@@ -200,11 +200,9 @@
     cd paru
     makepkg -si
     
-#43 -> Install audio requirements
-    sudo pacman -S pulseaudio pavucontrol pulseaudio-bluetooth bluez bluez-utils blueman
+#43 -> Enable pulseaudio
     pulseaudio -D
     # to control sound make use of pavucontrol
-    sudo systemctl enable bluetooth
     # configure bluetooth devices using blueman-manager
 
 #44 -> Install external disk utils
@@ -225,9 +223,9 @@
     do
         percentage=`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep percentage | sed 's/ //g' | sed 's/percentage://g'`
         state=`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep state: | sed 's/ //g' | sed 's/state://g'`
-        BATTERY="$percentage $state"
-        DATE=`date`
-        xsetroot -name "[ POWER = $BATTERY ] [ DATE = $DATE ] "
+        BATTERY="$percentage, $state"
+        DATE=`date +"%a, %d %b %y, %H:%M:%S"`
+        xsetroot -name " POWER = [ $BATTERY ], DATE = [ $DATE ] "
         sleep 1
     done
     
