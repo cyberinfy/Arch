@@ -23,19 +23,21 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 3 partitions [sda1 as boot(1), sda2 as root(20), sda3 as swap(19)]
+#7 -> Partition disk create 3 partitions [sda1 as boot(1), sda2 as root(20), sda3 as swap(19), nvme0n1p1 as home]
     fdisk /dev/sda1
     # g - create a new gpt id
     # n - new partition
     # +dGiB - d belongs to a positive number
     # t - set type
     # w - write all the changes
+    fdisk /dev/nvme0n1
 
 #8 -> Format Boot partition
     mkfs.fat -F 32 /dev/sda1
 
-#9 -> Format Root partition
+#9 -> Format Root & home partitions
     mkfs.ext4 /dev/sda2
+    mkfs.ext4 /dev/nvme0n1p1
 
 #10 -> Format swap partition
     mkswap /dev/sda3
@@ -46,11 +48,14 @@
 #12 -> Mount root partition
     mount /dev/sda2 /mnt
 
-#13 -> Make directory for boot partition
+#13 -> Make directories for boot & home partitions
     mkdir /mnt/boot
+    mkdir /mnt/home
 
-#14 -> Mount boot partition
+#14 -> Mount boot & home partitions, Also generate fstab
     mount /dev/sda1 /mnt/boot
+    mount /dev/nvme0n1p1 /mnt/home
+    genfstab -U /mnt >> /mnt/etc/fstab
 
 #15 -> Pacstrap
     pacstrap /mnt base base-devel linux-lts linux-firmware linux-lts-headers efibootmgr mtools dosfstools vim
