@@ -1,0 +1,249 @@
+#0 -> Connect to Internet
+    iwctl
+    device list
+    station wlan0 connect Zenos
+
+#1 -> Check you are connected with a ping test
+    ping -c 3 archlinux.org
+
+#2 -> Synchronize with network time
+    timedatectl set-ntp true
+
+#3 -> Update your mirrorlist
+    reflector --verbose --latest 200 --sort rate --save /etc/pacman.d/mirrorlist
+
+#4 -> Install terminus-font
+    pacman -Sy terminus-font
+
+#5 -> setfont
+    setfont ter-v24b
+
+#6 -> Check available disks
+    lsblk
+
+#7 -> Partition disk create 3 partitions [sda1 as boot(1) {1G} ,sda2 as root(20) {420G},sda3 as swap(19) {(rest)G}]
+    fdisk /dev/sda
+    # g - create a new gpt id
+    # n - new partition
+    # +dGiB - d belongs to a positive number
+    # t - set type
+    # w - write all the changes
+
+#8 -> Format boot partition
+    mkfs.fat -F 32 /dev/sda1
+
+#9 -> Format root partition
+    mkfs.ext4 /dev/sda2
+
+#10 -> Format swap partition
+    mkswap /dev/sda3
+
+#11 -> Activate swap
+    swapon /dev/sda3
+
+#12 -> Mount root partition
+    mount /dev/sda2 /mnt
+
+#13 -> Make directory for boot partition
+    mkdir /mnt/boot
+
+#14 -> Mount boot partition
+    mount /dev/sda1 /mnt/boot
+
+#15 -> Pacstrap
+    pacstrap /mnt base linux linux-firmware linux-headers base-devel efibootmgr mtools dosfstools vim iwd
+
+#16 -> Copy systemd network configuration files
+    cp /etc/systemd/network/* /mnt/etc/systemd/network
+
+#17 -> Change root to new system
+    arch-chroot /mnt
+
+#18 -> Installing processor microcode
+    pacman -S intel-ucode
+
+#19 -> Symlinking localtime
+    ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+
+#20 -> Synchronize with network time
+    timedatectl set-ntp true
+
+#21 -> Synchronize with hardware clock
+    hwclock --systohc
+
+#22 -> Adjust system clock from real time clock
+    timedatectl set-local-rtc 1 --adjust-system-clock
+
+#23 -> Setup locale
+    vim /etc/locale.gen
+    # Uncomment your locale
+
+#24 -> Generate locale
+    locale-gen
+
+#25 -> Create locale.conf
+    vim /etc/locale.conf
+    # Add the below line with your locale info
+    LANG=en_US.UTF-8
+
+#26 -> Set your hostname
+    vim /etc/hostname
+    # Add something like below line
+    core
+
+#27 -> Set your hosts
+    vim /etc/hosts
+    # Add the below lines by making required changes
+    127.0.0.1   localhost
+    ::1         localhost
+    127.0.1.1   core.localdomain   core
+
+#28 -> Set root password
+    passwd
+
+#29 -> Install systemd-boot
+    bootctl install
+
+#30 -> Create a boot entry
+    vim /boot/loader/entries/arch.conf
+    # Add the below lines by making required changes
+    title Arch
+    linux /vmlinuz-linux
+    initrd /intel-ucode.img
+    initrd /initramfs-linux.img
+    options rw root=/dev/sda2 resume=/dev/sda3 pci=noaer quiet splash
+    
+#31 -> Configure bootloader
+    vim /boot/loader/loader.conf
+    # Add the below line by making required changes
+    default arch
+
+#32 -> Configure mkinitcpio
+    vim /etc/mkinitcpio.conf
+    # Update "HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)" to
+    HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)
+
+#33 -> generate initramfs  
+    mkinitcpio -p linux
+
+#34 -> Install Graphics
+    pacman -S xf86-video-intel nvidia nvidia-utils
+
+#35 -> Install Display Server and it's applications
+    pacman -S xorg xorg-xinit
+
+#36 -> Install login manager
+    pacman -S slim
+    # to change background replace background.jpg from /usr/share/slim/themes/default/
+    # use slimlock to lock screen
+    # use below command to hibernate with screen lock
+    slimlock & systemctl hibernate
+
+#37 -> Install terminal
+    pacman -S alacritty
+
+#38 -> Install fonts
+    pacman -S noto-fonts
+
+#39 -> Install git
+    pacman -S git 
+
+#40 -> Install dwm & dmenu
+    pacman -S dmenu
+    cd /usr/src/
+    git clone git://git.suckless.org/dwm
+    cd dwm
+    vim config.def.h
+    # replace monospace with NotoSansMono
+    # replace st with alacritty
+    # replace mod1mask with mod4mask
+    make clean install
+
+#41 -> Create xinitrc for root
+    cd 
+    vim .xinitrc
+    # add the below line
+    dwm
+
+#42 -> create a user
+    useradd -m -g wheel code
+    passwd code
+
+#43 -> Create xinitrc for user
+    su code
+    cd
+    vim .xinitrc
+    # add the below line
+    dwm
+    exit
+
+#44 -> Allow wheel group users to execute all commands over passwd
+    EDITOR=vim visudo
+    # uncomment wheel respective group line
+
+#45 -> Enable all required services
+    systemctl enable systemd-networkd
+    systemctl enable systemd-resolved
+    systemctl enable systemd-timesyncd
+    systemctl enable iwd
+    systemctl enable slim
+
+#46 -> exit, reboot and login as user
+    exit
+    umount -a
+    reboot
+    login as code
+
+#47 -> Install yay
+    mkdir ~/src
+    cd ~/src
+    git clonne https://aur.archlinux.org/yay
+    cd yay
+    makepkg -si
+
+#48 -> Install audio requirements
+    sudo pacman -S pulseaudio pavucontrol pulseaudio-bluetooth bluez bluez-utils blueman
+    pulseaudio -D
+    # to control sound make use of pavucontrol
+    sudo systemctl enable bluetooth
+    # configure bluetooth devices using blueman-manager
+
+#49 -> Install external disk utils
+    sudo pacman -S udisks2 udiskie ntfs-3g
+
+#50 -> Install upower
+    sudo pacman -S upower
+
+#51 -> Install session manager
+    sudo pacman -S lxsession
+
+#52 -> Install libinput to configure input devices
+    sudo pacman -S xf86-input-libinput xorg-xinput
+
+#53 -> Create statusbar.sh with below given content
+    #!/bin/bash
+    while true
+    do
+        percentage=`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep percentage | sed 's/ //g' | sed 's/percentage://g'`
+        state=`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep state: | sed 's/ //g' | sed 's/state://g'`
+        BATTERY="$percentage $state"
+        DATE=`date`
+        xsetroot -name "[ POWER = $BATTERY ] [ DATE = $DATE ] "
+        sleep 1
+    done
+
+#54 -> update ~/.xinitrc with below given content (customize as required)
+    #!/bin/bash
+    dwm & wmpid=$!
+    lxsession &
+    xbacklight -set 60 &
+    xinput set-prop "SYNA7DB5:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 & #(optional)
+    sh ~/statusbar.sh &
+    udiskie &
+    blueman-applet &
+    wait $wmpid
+    
+    # "SYNA7DB5:00 06CB:CD41 Touchpad" is my touchpad id get yours using below command
+    xinput list
+    # list a device properties
+    xinput list-props device
