@@ -1,0 +1,14 @@
+font:
+  normal:
+    family: ComicMono
+    style: Regular
+
+  bold:
+    family: ComicMono
+    style: Bold
+
+  italic:
+    family: ComicMono
+    style: Italic
+
+  size: 12
