@@ -221,14 +221,14 @@
     sudo pacman -S xf86-input-libinput xorg-xinput
 
 #53 -> Create .statusbar.sh with below given content
-    #!/bin/bash
+#!/bin/bash
     while true
     do
         percentage=`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep percentage | sed 's/ //g' | sed 's/percentage://g'`
         state=`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep state: | sed 's/ //g' | sed 's/state://g'`
-        BATTERY="$percentage $state"
-        DATE=`date`
-        xsetroot -name "[ POWER = $BATTERY ] [ DATE = $DATE ] "
+        BATTERY="[ $percentage, $state ]"
+        DATE=`date +"[ %a, %b, %d, %Y, %H:%M:%S ]"`
+        xsetroot -name "{ Battery: $BATTERY, Date: $DATE }"
         sleep 1
     done
 
