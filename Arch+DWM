@@ -220,7 +220,7 @@
 #52 -> Install libinput to configure input devices
     sudo pacman -S xf86-input-libinput xorg-xinput
 
-#53 -> Create statusbar.sh with below given content
+#53 -> Create .statusbar.sh with below given content
     #!/bin/bash
     while true
     do
@@ -238,7 +238,7 @@
     lxsession &
     xbacklight -set 60 &
     xinput set-prop "SYNA7DB5:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 & #(optional)
-    sh ~/statusbar.sh &
+    sh ~/.statusbar.sh &
     udiskie &
     blueman-applet &
     wait $wmpid
