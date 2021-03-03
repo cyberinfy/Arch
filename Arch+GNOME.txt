@@ -23,38 +23,37 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 3 partitions [sda1 as boot(1), sda2 as root(20), sda3 as swap(19), nvme0n1p1 as home]
-    fdisk /dev/sda1
+#7 -> Partition disk create 3 partitions [nvme0n1p1 as boot(1), nvme0n1p2 as root(20), nvme0n1p3 as swap(19), nvme0n1p4 as home(20)]
+    fdisk /dev/nvme0n1
     # g - create a new gpt id
     # n - new partition
     # +dGiB - d belongs to a positive number
     # t - set type
     # w - write all the changes
-    fdisk /dev/nvme0n1
 
 #8 -> Format Boot partition
-    mkfs.fat -F 32 /dev/sda1
+    mkfs.fat -F 32 /dev/nvme0n1p1
 
 #9 -> Format Root & home partitions
-    mkfs.ext4 /dev/sda2
-    mkfs.ext4 /dev/nvme0n1p1
+    mkfs.ext4 /dev/nvme0n1p2
+    mkfs.ext4 /dev/nvme0n1p4
 
 #10 -> Format swap partition
-    mkswap /dev/sda3
+    mkswap /dev/nvme0n1p3
 
 #11 -> Activate swap
-    swapon /dev/sda3
+    swapon /dev/nvme0n1p3
 
 #12 -> Mount root partition
-    mount /dev/sda2 /mnt
+    mount /dev/nvme0n1p2 /mnt
 
 #13 -> Make directories for boot & home partitions
     mkdir /mnt/boot
     mkdir /mnt/home
 
 #14 -> Mount boot & home partitions, Also generate fstab
-    mount /dev/sda1 /mnt/boot
-    mount /dev/nvme0n1p1 /mnt/home
+    mount /dev/nvme0n1p1 /mnt/boot
+    mount /dev/nvme0n1p4 /mnt/home
     genfstab -U /mnt >> /mnt/etc/fstab
 
 #15 -> Pacstrap
@@ -118,7 +117,7 @@
     linux /vmlinuz-linux-lts
     initrd /intel-ucode.img
     initrd /initramfs-linux-lts.img
-    options rw root=/dev/sda2 resume=/dev/sda3 pci=noaer quiet splash
+    options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet splash
 
 #31 -> Configure bootloader
     vim /boot/loader/loader.conf
