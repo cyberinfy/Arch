@@ -1,0 +1,3 @@
+yay -S openrazer-meta
+yay -S razercommander
+sudo gpasswd -a $USER plugdev
