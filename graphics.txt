@@ -1,0 +1,28 @@
+------------------------------------------------------
+For switching between nvidia and intel graphics
+______________________________________________________
+
+yay -S gdm-prime
+yay -S optimus-manager
+
+optimus-manager --switch nvidia
+optimus-manager --switch integrated
+optimus-manager --switch hybrid
+
+optimus-manager --print-mode
+
+------------------------------------------------------
+For getting stats of intel graphics
+______________________________________________________
+sudo pacman -S intel-gpu-tools
+
+sudo intel_gpu_top
+
+https://helpmanual.io/packages/apt/intel-gpu-tools/
+------------------------------------------------------
+For getting stats of nvidia graphics
+______________________________________________________
+nvidia-smi
+
+sudo pip install gpustat
+sudo gpustat
