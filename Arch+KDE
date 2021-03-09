@@ -139,10 +139,10 @@
     pacman -S xorg
 
 #36 -> Install KDE
-    pacman -S plasma-meta packagekit-qt5 kde-applications-meta
-
-#37 -> Install  gnome-extra (optional)
-    pacman -S gnome-extra
+    pacman -S plasma-meta packagekit-qt5 
+    
+#37 -> Install  kde-applications (optional)
+    pacman -S kde-applications-meta
     
 #38 -> User creation
     useradd -m -g wheel krishna
