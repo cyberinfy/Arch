@@ -23,7 +23,7 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 3 partitions [nvme0n1p1 as boot(1), nvme0n1p2 as root(20), nvme0n1p3 as swap(19), nvme0n1p4 as home(20)]
+#7 -> Partition disk create 3 partitions [nvme0n1p2 as boot(1), nvme0n1p3 as root(20), nvme0n1p4 as swap(19), nvme0n1p1 as home(20)]
     fdisk /dev/nvme0n1
     # g - create a new gpt id
     # n - new partition
@@ -32,32 +32,31 @@
     # w - write all the changes
 
 #8 -> Format Boot partition
-    mkfs.fat -F 32 /dev/nvme0n1p1
+    mkfs.fat -F 32 /dev/nvme0n1p2
 
 #9 -> Format Root & home partitions
-    mkfs.ext4 /dev/nvme0n1p2
-    mkfs.ext4 /dev/nvme0n1p4
+    mkfs.ext4 /dev/nvme0n1p3
 
 #10 -> Format swap partition
-    mkswap /dev/nvme0n1p3
+    mkswap /dev/nvme0n1p4
 
 #11 -> Activate swap
-    swapon /dev/nvme0n1p3
+    swapon /dev/nvme0n1p4
 
 #12 -> Mount root partition
-    mount /dev/nvme0n1p2 /mnt
+    mount /dev/nvme0n1p3 /mnt
 
 #13 -> Make directories for boot & home partitions
     mkdir /mnt/boot
     mkdir /mnt/home
 
 #14 -> Mount boot & home partitions, Also generate fstab
-    mount /dev/nvme0n1p1 /mnt/boot
-    mount /dev/nvme0n1p4 /mnt/home
+    mount /dev/nvme0n1p2 /mnt/boot
+    mount /dev/nvme0n1p1 /mnt/home
     genfstab -U /mnt >> /mnt/etc/fstab
 
 #15 -> Pacstrap
-    pacstrap /mnt base base-devel linux-lts linux-firmware linux-lts-headers efibootmgr mtools dosfstools vim
+    pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr mtools dosfstools vim
 
 #16 -> Copy systemd network configuration files
     cp /etc/systemd/network/* /mnt/etc/systemd/network
@@ -114,9 +113,9 @@
     vim /boot/loader/entries/arch.conf
     # Add the below lines by making required changes
     title Arch
-    linux /vmlinuz-linux-lts
+    linux /vmlinuz-linux
     initrd /intel-ucode.img
-    initrd /initramfs-linux-lts.img
+    initrd /initramfs-linux.img
     options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet splash
 
 #31 -> Configure bootloader
@@ -131,14 +130,14 @@
     HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)
 
 #33 -> generate initramfs  
-    mkinitcpio -p linux-lts
+    mkinitcpio -p linux
 
 #34 -> Install Graphics
-    pacman -S xf86-video-intel nvidia-lts nvidia-utils nvidia-settings
+    pacman -S xf86-video-intel nvidia nvidia-utils
 
 #35 -> Install Display Server and it's applications
     pacman -S xorg
-
+    
 #36 -> Install Gnome
     pacman -S gnome
 
