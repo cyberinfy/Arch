@@ -23,7 +23,7 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 3 partitions [nvme0n1p2 as boot(1), nvme0n1p3 as root(20), nvme0n1p4 as swap(19), nvme0n1p1 as home(20)]
+#7 -> Partition disk create 3 partitions [sda1 as ext(20) +319G, sda2 as boot(1) +1G, sda3 as root(20) +127G, nvme0n1p1 as home(20) +906G, nvme0n1p2 as swap(19) +24G]
     fdisk /dev/nvme0n1
     # g - create a new gpt id
     # n - new partition
@@ -32,26 +32,28 @@
     # w - write all the changes
 
 #8 -> Format Boot partition
-    mkfs.fat -F 32 /dev/nvme0n1p2
+    mkfs.fat -F 32 /dev/sda2
 
-#9 -> Format Root & home partitions
-    mkfs.ext4 /dev/nvme0n1p3
+#9 -> Format ext, Root & home partitions
+    mkfs.ext4 /dev/sda1
+    mkfs.ext4 /dev/sda3
+    mkfs.ext4 /dev/nvme0n1p1
 
 #10 -> Format swap partition
-    mkswap /dev/nvme0n1p4
+    mkswap /dev/nvme0n1p2
 
 #11 -> Activate swap
-    swapon /dev/nvme0n1p4
+    swapon /dev/nvme0n1p2
 
 #12 -> Mount root partition
-    mount /dev/nvme0n1p3 /mnt
+    mount /dev/sda3 /mnt
 
 #13 -> Make directories for boot & home partitions
     mkdir /mnt/boot
     mkdir /mnt/home
 
 #14 -> Mount boot & home partitions, Also generate fstab
-    mount /dev/nvme0n1p2 /mnt/boot
+    mount /dev/sda2 /mnt/boot
     mount /dev/nvme0n1p1 /mnt/home
     genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -94,14 +96,14 @@
 #26 -> Set your hostname
     vim /etc/hostname
     # Add something like below line
-    cyberinfy
+    core
 
 #27 -> Set your hosts
     vim /etc/hosts
     # Add the below lines by making required changes
     127.0.0.1   localhost
     ::1         localhost
-    127.0.1.1   cyberinfy.localdomain   cyberinfy
+    127.0.1.1   core.localdomain   core
 
 #28 -> Set root password
     passwd
@@ -116,7 +118,7 @@
     linux /vmlinuz-linux
     initrd /intel-ucode.img
     initrd /initramfs-linux.img
-    options rw root=/dev/nvme0n1p2 resume=/dev/nvme0n1p3 pci=noaer quiet splash
+    options rw root=/dev/sda3 resume=/dev/nvme0n1p2 pci=noaer snd_hda_intel.dmic_detect=0 quiet splash
 
 #31 -> Configure bootloader
     vim /boot/loader/loader.conf
@@ -145,8 +147,8 @@
     pacman -S gnome-extra
     
 #38 -> User creation
-    useradd -m -g wheel krishna
-    passwd krishna
+    useradd -m -g wheel code
+    passwd code
 
 #39 -> EDITOR=vim visudo
     # uncomment below line
@@ -164,6 +166,6 @@
     exit
     umount -a
     reboot
-    login as krishna #user
+    login as code #user
 
 -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
