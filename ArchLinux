@@ -167,5 +167,6 @@
     umount -a
     reboot
     login as code #user
+    sudo chown -R code:wheel /run/media/code
 
 -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
