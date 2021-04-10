@@ -1,14 +1,14 @@
 font:
   normal:
-    family: ComicMono
+    family: NotoSansMono
     style: Regular
 
   bold:
-    family: ComicMono
+    family: NotoSansMono
     style: Bold
 
   italic:
-    family: ComicMono
+    family: NotoSansMono
     style: Italic
 
   size: 12
