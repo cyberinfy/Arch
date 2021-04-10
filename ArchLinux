@@ -14,8 +14,8 @@
 #3 -> Update your mirrorlist
     reflector --verbose --latest 200 --sort rate --save /etc/pacman.d/mirrorlist
 
-#4 -> Install ntfs-3g
-    pacman -Sy ntfs-3g
+#4 -> Install terminus-font
+    pacman -Sy terminus-font
 
 #5 -> setfont
     setfont ter-v24b
@@ -23,8 +23,8 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 3 partitions [sda1 as ext(20) +319G, sda2 as boot(1) +1G, sda3 as root(20) +127G, nvme0n1p1 as home(20) +906G, nvme0n1p2 as swap(19) +24G]
-    fdisk /dev/nvme0n1
+#7 -> Partition disk create 4 partitions [sda1 as home(20) +344G, sda2 as boot(1) +1G, sda3 as root(20) +102G, sda4 as swap(19) +24G]
+    fdisk /dev/sda
     # g - create a new gpt id
     # n - new partition
     # +dGiB - d belongs to a positive number
@@ -37,13 +37,12 @@
 #9 -> Format ext, Root & home partitions
     mkfs.ext4 /dev/sda1
     mkfs.ext4 /dev/sda3
-    mkfs.ext4 /dev/nvme0n1p1
 
 #10 -> Format swap partition
-    mkswap /dev/nvme0n1p2
+    mkswap /dev/sda4
 
 #11 -> Activate swap
-    swapon /dev/nvme0n1p2
+    swapon /dev/sda4
 
 #12 -> Mount root partition
     mount /dev/sda3 /mnt
@@ -54,11 +53,11 @@
 
 #14 -> Mount boot & home partitions, Also generate fstab
     mount /dev/sda2 /mnt/boot
-    mount /dev/nvme0n1p1 /mnt/home
+    mount /dev/sda1 /mnt/home
     genfstab -U /mnt >> /mnt/etc/fstab
 
 #15 -> Pacstrap
-    pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr mtools dosfstools vim
+    pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr mtools dosfstools vim iwd
 
 #16 -> Copy systemd network configuration files
     cp /etc/systemd/network/* /mnt/etc/systemd/network
@@ -118,7 +117,7 @@
     linux /vmlinuz-linux
     initrd /intel-ucode.img
     initrd /initramfs-linux.img
-    options rw root=/dev/sda3 resume=/dev/nvme0n1p2 pci=noaer snd_hda_intel.dmic_detect=0 quiet splash
+    options rw root=/dev/sda3 resume=/dev/sda4 pci=noaer snd_hda_intel.dmic_detect=0 quiet splash
 
 #31 -> Configure bootloader
     vim /boot/loader/loader.conf
@@ -140,11 +139,23 @@
 #35 -> Install Display Server and it's applications
     pacman -S xorg
     
-#36 -> Install Gnome
-    pacman -S gnome
+#36 -> Install Git, noto-fonts, firefox and slim
+    pacman -S git noto-fonts firefox slim
 
-#37 -> Install  gnome-extra (optional)
-    pacman -S gnome-extra
+#37 -> Install  suckless stuff
+    mkdir /usr/src/suckless
+    cd /usr/src/suckless
+    git clone git://git.suckless.org/dwm
+    git clone git://git.suckless.org/st
+    git clone git://git.suckless.org/dmenu
+    cd dwm
+    vim config.def.h
+    #change font to NotoSansMono and make other necessary changes
+    make clean install
+    cd ../st
+    make clean install
+    cd ../dmenu
+    make clean install
     
 #38 -> User creation
     useradd -m -g wheel code
@@ -158,9 +169,8 @@
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
     systemctl enable systemd-timesyncd
-    systemctl enable NetworkManager
-    systemctl enable bluetooth
-    systemctl enable gdm
+    systemctl enable iwd
+    systemctl enable slim
 
 #41 -> Final Steps
     exit
