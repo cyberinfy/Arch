@@ -23,7 +23,7 @@
 #6 -> Check available disks
     lsblk
 
-#7 -> Partition disk create 4 partitions [sda1 as home(20) +344G, sda2 as boot(1) +1G, sda3 as root(20) +102G, sda4 as swap(19) +24G]
+#7 -> Partition disk create 4 partitions [sda1 as home(20) +320G, sda2 as boot(1) +1G, sda3 as root(20) +102G, sda4 as swap(19) +24G]
     fdisk /dev/sda
     # g - create a new gpt id
     # n - new partition
@@ -54,19 +54,19 @@
 #14 -> Mount boot & home partitions, Also generate fstab
     mount /dev/sda2 /mnt/boot
     mount /dev/sda1 /mnt/home
-    genfstab -U /mnt >> /mnt/etc/fstab
 
 #15 -> Pacstrap
-    pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr mtools dosfstools vim iwd
+    pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr mtools dosfstools vim iwd zsh ntfs-3g
 
-#16 -> Copy systemd network configuration files
+#16 -> Copy systemd network configuration files and generate fstab
     cp /etc/systemd/network/* /mnt/etc/systemd/network
+    genfstab -U /mnt >> /mnt/etc/fstab
 
 #17 -> Change root to new system
     arch-chroot /mnt
 
 #18 -> Installing processor microcode and ntfs-3g
-    pacman -S intel-ucode ntfs-3g
+    pacman -S intel-ucode xorg xf86-video-intel nvidia nvidia-utils git noto-fonts firefox nautilus dmenu slim
 
 #19 -> Symlinking localtime
     ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
@@ -133,46 +133,30 @@
 #33 -> generate initramfs  
     mkinitcpio -p linux
 
-#34 -> Install Graphics
-    pacman -S xf86-video-intel nvidia nvidia-utils
-
-#35 -> Install Display Server and it's applications
-    pacman -S xorg
-    
-#36 -> Install Git, noto-fonts, firefox and slim
-    pacman -S git noto-fonts firefox slim
-
-#37 -> Install  suckless stuff
-    mkdir /usr/src/suckless
-    cd /usr/src/suckless
+#34 -> Install  dwm
+    cd /usr/src
     git clone git://git.suckless.org/dwm
-    git clone git://git.suckless.org/st
-    git clone git://git.suckless.org/dmenu
     cd dwm
     vim config.def.h
-    #change font to NotoSansMono and make other necessary changes
-    make clean install
-    cd ../st
-    make clean install
-    cd ../dmenu
+    #change terminal to alacritty, change font to NotoSansMono and make other necessary changes
     make clean install
     
-#38 -> User creation
+#35 -> User creation
     useradd -m -g wheel code
     passwd code
 
-#39 -> EDITOR=vim visudo
+#36 -> EDITOR=vim visudo
     # uncomment below line
     %wheel ALL=(ALL) ALL
 
-#40 -> Enable required services
+#37 -> Enable required services
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
     systemctl enable systemd-timesyncd
     systemctl enable iwd
     systemctl enable slim
 
-#41 -> Final Steps
+#38 -> Final Steps
     exit
     umount -a
     reboot
