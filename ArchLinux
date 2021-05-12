@@ -56,7 +56,7 @@
     mount /dev/sda1 /mnt/home
 
 #15 -> Pacstrap
-    pacstrap /mnt base base-devel linux linux-firmware linux-headers efibootmgr mtools dosfstools vim iwd zsh ntfs-3g
+    pacstrap /mnt base base-devel linux-lts linux-firmware linux-lts-headers efibootmgr mtools dosfstools vim iwd zsh ntfs-3g
 
 #16 -> Copy systemd network configuration files and generate fstab
     cp /etc/systemd/network/* /mnt/etc/systemd/network
@@ -66,7 +66,7 @@
     arch-chroot /mnt
 
 #18 -> Installing processor microcode and ntfs-3g
-    pacman -S intel-ucode xorg xf86-video-intel nvidia nvidia-utils git noto-fonts firefox nautilus dmenu slim
+    pacman -S intel-ucode xorg xf86-video-intel nvidia-lts nvidia-utils
 
 #19 -> Symlinking localtime
     ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
@@ -114,9 +114,9 @@
     vim /boot/loader/entries/arch.conf
     # Add the below lines by making required changes
     title Arch
-    linux /vmlinuz-linux
+    linux /vmlinuz-linux-lts
     initrd /intel-ucode.img
-    initrd /initramfs-linux.img
+    initrd /initramfs-linux-lts.img
     options rw root=/dev/sda3 resume=/dev/sda4 pci=noaer snd_hda_intel.dmic_detect=0 quiet splash
 
 #31 -> Configure bootloader
@@ -131,19 +131,14 @@
     HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)
 
 #33 -> generate initramfs  
-    mkinitcpio -p linux
+    mkinitcpio -p linux-lts
 
-#34 -> Install  dwm
-    cd /usr/src
-    git clone git://git.suckless.org/dwm
-    cd dwm
-    vim config.def.h
-    #change terminal to alacritty, change font to NotoSansMono and make other necessary changes
-    make clean install
+#34 -> Install  gnome
+    pacman -S gnome
     
 #35 -> User creation
-    useradd -m -g wheel code
-    passwd code
+    useradd -m -g wheel krishna
+    passwd krishna
 
 #36 -> EDITOR=vim visudo
     # uncomment below line
@@ -153,13 +148,14 @@
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
     systemctl enable systemd-timesyncd
-    systemctl enable iwd
-    systemctl enable slim
+    systemctl enable NetworkManager
+    systemctl enable bluetooth
+    systemctl enable gdm
 
 #38 -> Final Steps
     exit
     umount -a
     reboot
-    login as code #user
+    login as krishna #user
 
 -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
