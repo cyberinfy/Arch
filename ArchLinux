@@ -3,7 +3,7 @@
 #0 -> Connect to Internet
     iwctl
     device list
-    station wlan0 connect Zenos
+    station wlan0 connect Zenos_5g
 
 #1 -> Check you are connected with a ping test
     ping -c 3 archlinux.org
